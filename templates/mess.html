@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mess Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: #667eea;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .mess-grid {
+            display: grid;
+            gap: 20px;
+        }
+
+        .mess-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .mess-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .mess-name {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .mess-fee {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .mess-details {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .book-btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 15px;
+            transition: all 0.3s;
+        }
+
+        .book-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .booking-form {
+            background: white;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍽️ Mess Management</h1>
+            <a href="/" class="back-btn">← Back to Dashboard</a>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2>Available Mess Options</h2>
+                <div id="messGrid" class="mess-grid">
+                    <div style="text-align: center; padding: 40px; color: #667eea;">
+                        Loading mess options...
+                    </div>
+                </div>
+            </div>
+
+            <div class="section booking-form">
+                <h2>Book Mess</h2>
+                <form id="bookingForm">
+                    <div class="form-group">
+                        <label>Student *</label>
+                        <select id="student_id" required>
+                            <option value="">Select Student</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mess *</label>
+                        <select id="mess_no" required>
+                            <option value="">Select Mess</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">Book Mess</button>
+                </form>
+
+                <h2 style="margin-top: 30px;">Current Bookings</h2>
+                <div id="bookingsTable">
+                    <div style="text-align: center; padding: 20px; color: #999;">
+                        Loading bookings...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let allMess = [];
+        let allStudents = [];
+        let allBookings = [];
+
+        async function loadMess() {
+            try {
+                const response = await fetch(`${API_BASE}/mess`);
+                allMess = await response.json();
+                displayMess();
+                populateMessDropdown();
+            } catch (error) {
+                console.error('Error loading mess:', error);
+            }
+        }
+
+        function displayMess() {
+            const grid = document.getElementById('messGrid');
+            grid.innerHTML = allMess.map(mess => `
+                <div class="mess-card">
+                    <div class="mess-name">${mess.m_name}</div>
+                    <div>Mess ID: ${mess.m_no}</div>
+                    <div class="mess-fee">₹${mess.monthly_fee.toLocaleString()}</div>
+                    <div style="font-size: 14px; opacity: 0.9;">per month</div>
+                    <button class="book-btn" onclick="selectMess('${mess.m_no}')">
+                        Select This Mess
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function selectMess(messNo) {
+            document.getElementById('mess_no').value = messNo;
+            document.getElementById('student_id').focus();
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch(`${API_BASE}/students`);
+                allStudents = await response.json();
+                populateStudentDropdown();
+                loadBookings();
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        function populateStudentDropdown() {
+            const select = document.getElementById('student_id');
+            select.innerHTML = '<option value="">Select Student</option>' +
+                allStudents.map(s => 
+                    `<option value="${s.s_id}">${s.s_id} - ${s.f_name} ${s.l_name}</option>`
+                ).join('');
+        }
+
+        function populateMessDropdown() {
+            const select = document.getElementById('mess_no');
+            select.innerHTML = '<option value="">Select Mess</option>' +
+                allMess.map(m => 
+                    `<option value="${m.m_no}">${m.m_name} - ₹${m.monthly_fee}</option>`
+                ).join('');
+        }
+
+        async function loadBookings() {
+            try {
+                const response = await fetch(`${API_BASE}/students`);
+                const students = await response.json();
+                
+                allBookings = students.filter(s => s.mess_name);
+                displayBookings();
+            } catch (error) {
+                console.error('Error loading bookings:', error);
+            }
+        }
+
+        function displayBookings() {
+            const container = document.getElementById('bookingsTable');
+            
+            if (allBookings.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">No bookings yet</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Mess</th>
+                            <th>Fee</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${allBookings.map(booking => {
+                            const mess = allMess.find(m => m.m_name === booking.mess_name);
+                            return `
+                                <tr>
+                                    <td>${booking.f_name} ${booking.l_name}</td>
+                                    <td>${booking.mess_name}</td>
+                                    <td>₹${mess ? mess.monthly_fee.toLocaleString() : 'N/A'}</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                s_id: document.getElementById('student_id').value,
+                m_no: document.getElementById('mess_no').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/mess/book`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Mess booked successfully');
+                    document.getElementById('bookingForm').reset();
+                    loadBookings();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error booking mess');
+            }
+        });
+
+        // Load data on page load
+        loadMess();
+        loadStudents();
+    </script>
+</body>
+</html>

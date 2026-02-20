@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardens Management</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        header {
+            background: white; padding: 20px 30px; border-radius: 15px;
+            display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        h1 { color: #667eea; }
+
+        .back-btn {
+            background: #667eea; padding: 10px 20px; border-radius: 8px;
+            text-decoration: none; color: white; cursor: pointer;
+        }
+
+        .content {
+            background: white; padding: 30px; border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .wardens-grid {
+            display: grid; gap: 20px; 
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            margin-top: 20px;
+        }
+
+        .warden-card {
+            border: 2px solid #e0e0e0; padding: 25px; border-radius: 12px;
+            transition: 0.3s; background: white;
+        }
+        .warden-card:hover { transform: translateY(-5px); }
+
+        .warden-header {
+            display: flex; align-items: center; gap: 15px;
+        }
+
+        .warden-icon {
+            width: 60px; height: 60px;
+            border-radius: 50%; background: linear-gradient(135deg,#667eea,#764ba2);
+            display: flex; justify-content: center; align-items: center;
+            font-size: 30px; color: white;
+        }
+
+        .view-btn {
+            margin-top: 15px; width: 100%; padding: 10px;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            border-radius: 8px; color: white; cursor: pointer;
+            border: none;
+        }
+
+        .modal {
+            display: none; position: fixed; top: 0; left: 0; width: 100%;
+            height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;
+        }
+
+        .modal-content {
+            background: white; padding: 30px; border-radius: 15px;
+            max-width: 700px; margin: 50px auto; max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th { background: #667eea; color: white; padding: 12px; }
+        td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; }
+        .close-btn { padding: 12px; width: 100%; background: #999; color: white;
+            border: none; border-radius: 8px; margin-top: 15px; cursor: pointer; }
+
+        select {
+            width: 100%; padding: 10px; border-radius: 8px;
+            border: 2px solid #ddd; margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>👔 Wardens Management</h1>
+        <a href="/" class="back-btn">← Back</a>
+    </header>
+
+    <div class="content">
+
+        <h2>All Wardens</h2>
+        <button class="view-btn" onclick="openAssignModal()">Assign Student to Warden</button>
+        
+        <div id="wardensGrid" class="wardens-grid">
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                Loading wardens...
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Students Modal -->
+<div id="studentsModal" class="modal">
+    <div class="modal-content">
+        <h2 id="modalTitle">Students</h2>
+        <div id="studentsTable"></div>
+        <button onclick="closeModal()" class="close-btn">Close</button>
+    </div>
+</div>
+
+<!-- Assign Student Modal -->
+<div id="assignModal" class="modal">
+    <div class="modal-content">
+        <h2>Assign Student to Warden</h2>
+
+        <label>Select Warden</label>
+        <select id="wardenSelect"></select>
+
+        <label>Select Student</label>
+        <select id="studentSelect"></select>
+
+        <button class="view-btn" onclick="assignNow()">Assign</button>
+        <button class="close-btn" onclick="closeAssignModal()">Cancel</button>
+    </div>
+</div>
+
+<script>
+
+const API = "http://localhost:5000/api";
+let allWardens = [];
+let allStudents = [];
+
+// ------------------------------------------------------
+// LOAD WARDENS
+// ------------------------------------------------------
+async function loadWardens() {
+    const res = await fetch(`${API}/wardens`);
+    const wardens = await res.json();
+    allWardens = wardens;
+    displayWardens(wardens);
+}
+
+function displayWardens(wardens) {
+    const grid = document.getElementById("wardensGrid");
+    grid.innerHTML = wardens.map(w => `
+        <div class="warden-card">
+            <div class="warden-header">
+                <div class="warden-icon">👔</div>
+                <div>
+                    <h3 style="color:#667eea;">${w.name}</h3>
+                    <small style="color:#666;">${w.w_id}</small>
+                </div>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <p><strong>Phone:</strong> ${w.p_no}</p>
+                <p><strong>Students Monitored:</strong> ${w.student_count}</p>
+            </div>
+
+            <button class="view-btn" onclick="viewStudents('${w.w_id}','${w.name}')">
+                View Students
+            </button>
+        </div>
+    `).join('');
+}
+
+// ------------------------------------------------------
+// VIEW STUDENTS OF WARDEN
+// ------------------------------------------------------
+async function viewStudents(w_id, name) {
+    const res = await fetch(`${API}/wardens/${w_id}/students`);
+    const students = await res.json();
+
+    document.getElementById("modalTitle").textContent = `Students of ${name}`;
+
+    if (students.length === 0) {
+        document.getElementById("studentsTable").innerHTML =
+            `<p style="text-align:center; padding:20px; color:#888;">No students assigned</p>`;
+    } else {
+        document.getElementById("studentsTable").innerHTML = `
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Name</th><th>Phone</th><th>Assigned Date</th></tr>
+                </thead>
+                <tbody>
+                    ${students.map(s => `
+                        <tr>
+                            <td>${s.s_id}</td>
+                            <td>${s.f_name} ${s.m_name || ''} ${s.l_name}</td>
+                            <td>${s.p_no}</td>
+                            <td>${new Date(s.assigned_date).toLocaleDateString()}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    document.getElementById("studentsModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("studentsModal").style.display = "none";
+}
+
+// ------------------------------------------------------
+// ASSIGN STUDENT TO WARDEN
+// ------------------------------------------------------
+async function openAssignModal() {
+    await loadStudents();
+
+    // populate wardens dropdown
+    document.getElementById("wardenSelect").innerHTML =
+        allWardens.map(w => `<option value="${w.w_id}">${w.name} (${w.w_id})</option>`).join("");
+
+    // populate students dropdown
+    document.getElementById("studentSelect").innerHTML =
+        allStudents.map(s => `<option value="${s.s_id}">${s.s_id} - ${s.f_name} ${s.l_name}</option>`).join("");
+
+    document.getElementById("assignModal").style.display = "block";
+}
+
+function closeAssignModal() {
+    document.getElementById("assignModal").style.display = "none";
+}
+
+async function loadStudents() {
+    const res = await fetch(`${API}/students`);
+    allStudents = await res.json();
+}
+
+async function assignNow() {
+    const w_id = document.getElementById("wardenSelect").value;
+    const s_id = document.getElementById("studentSelect").value;
+
+    const res = await fetch(`${API}/wardens/assign`, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ w_id, s_id })
+    });
+
+    const out = await res.json();
+    alert(out.message || out.error);
+
+    closeAssignModal();
+    loadWardens();
+}
+
+loadWardens();
+
+</script>
+
+</body>
+</html>

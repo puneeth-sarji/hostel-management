@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fees Records</title>
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 { color: #667eea; }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+        }
+
+        td {
+            padding: 10px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .amount {
+            font-weight: 600;
+            color: #764ba2;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>💰 All Fees Records</h1>
+        <a href="/" class="back-btn">← Back</a>
+    </header>
+
+    <div class="section">
+        <h2>Recent to Oldest</h2>
+
+        <div id="feesTable">
+            <div style="text-align: center; color:#667eea; padding: 20px;">Loading fees...</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = "http://localhost:5000/api";
+
+    async function loadFees() {
+        try {
+            const res = await fetch(`${API}/fees`);
+            const data = await res.json();
+
+            displayFees(data);
+
+        } catch (e) {
+            console.error("Error loading fees", e);
+        }
+    }
+
+    function displayFees(fees) {
+        if (fees.length === 0) {
+            document.getElementById('feesTable').innerHTML =
+                '<div style="color:#999; padding:20px; text-align:center;">No fees found</div>';
+            return;
+        }
+
+        fees.sort((a, b) => new Date(b.p_date) - new Date(a.p_date));
+
+        document.getElementById("feesTable").innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Payment ID</th>
+                        <th>Student</th>
+                        <th>Date</th>
+                        <th>Method</th>
+                        <th>Amount (₹)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${fees.map(f => `
+                        <tr>
+                            <td>${f.p_id}</td>
+                            <td>${f.student_name || "—"}</td>
+                            <td>${new Date(f.p_date).toLocaleDateString()}</td>
+                            <td>${f.p_method}</td>
+                            <td class="amount">₹${f.amount}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    loadFees();
+</script>
+
+</body>
+</html>

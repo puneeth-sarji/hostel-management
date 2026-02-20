@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laundry Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            color: #667eea;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .section {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .laundry-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .laundry-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .laundry-info h3 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .laundry-details {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .laundry-price {
+            text-align: right;
+        }
+
+        .price-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .price-label {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: scale(1.02);
+        }
+
+        .recent-submissions {
+            margin-top: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th {
+            background: #667eea;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+        }
+
+        tr:hover {
+            background: #f8f9ff;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        @media (max-width: 968px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👕 Laundry Management</h1>
+            <a href="/" class="back-btn">← Back to Dashboard</a>
+        </header>
+
+        <div class="content">
+            <div class="section">
+                <h2>Laundry Services</h2>
+                <div id="laundryGrid" class="laundry-grid">
+                    <div style="text-align: center; padding: 40px; color: #667eea;">
+                        Loading laundry services...
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h2>Submit Laundry</h2>
+                <form id="laundryForm">
+                    <div class="form-group">
+                        <label>Student *</label>
+                        <select id="student_id" required>
+                            <option value="">Select Student</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Laundry Service *</label>
+                        <select id="laundry_no" required>
+                            <option value="">Select Service</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">Submit Laundry</button>
+                </form>
+
+                <div class="recent-submissions">
+                    <h2>Recent Submissions</h2>
+                    <div id="submissionsTable">
+                        <div style="text-align: center; padding: 20px; color: #999;">
+                            Loading submissions...
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section full-width">
+                <h2>All Laundry Submissions</h2>
+                <div id="allSubmissionsTable">
+                    <div style="text-align: center; padding: 20px; color: #999;">
+                        Loading all submissions...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+        let allLaundry = [];
+        let allStudents = [];
+        let allSubmissions = [];
+
+        async function loadLaundry() {
+            try {
+                const response = await fetch(`${API_BASE}/laundry`);
+                allLaundry = await response.json();
+                displayLaundry();
+                populateLaundryDropdown();
+            } catch (error) {
+                console.error('Error loading laundry:', error);
+            }
+        }
+
+        function displayLaundry() {
+            const grid = document.getElementById('laundryGrid');
+            grid.innerHTML = allLaundry.map(laundry => `
+                <div class="laundry-card">
+                    <div class="laundry-info">
+                        <h3>Service ${laundry.l_no}</h3>
+                        <div class="laundry-details">
+                            ${laundry.days_of_laundry} days service
+                        </div>
+                    </div>
+                    <div class="laundry-price">
+                        <div class="price-value">₹${laundry.rate_per_day}</div>
+                        <div class="price-label">per day</div>
+                        <div style="margin-top: 5px; font-size: 16px; font-weight: 600;">
+                            Total: ₹${(laundry.rate_per_day * laundry.days_of_laundry).toFixed(2)}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function loadStudents() {
+            try {
+                const response = await fetch(`${API_BASE}/students`);
+                allStudents = await response.json();
+                populateStudentDropdown();
+            } catch (error) {
+                console.error('Error loading students:', error);
+            }
+        }
+
+        function populateStudentDropdown() {
+            const select = document.getElementById('student_id');
+            select.innerHTML = '<option value="">Select Student</option>' +
+                allStudents.map(s => 
+                    `<option value="${s.s_id}">${s.s_id} - ${s.f_name} ${s.l_name}</option>`
+                ).join('');
+        }
+
+        function populateLaundryDropdown() {
+            const select = document.getElementById('laundry_no');
+            select.innerHTML = '<option value="">Select Service</option>' +
+                allLaundry.map(l => {
+                    const total = (l.rate_per_day * l.days_of_laundry).toFixed(2);
+                    return `<option value="${l.l_no}">${l.l_no} - ${l.days_of_laundry} days (₹${total})</option>`;
+                }).join('');
+        }
+
+        async function loadSubmissions() {
+            try {
+                const res = await fetch(`${API_BASE}/laundry/submissions`);
+                allSubmissions = await res.json();
+
+                displayRecentSubmissions();
+                displayAllSubmissions();
+
+            } catch (e) {
+                console.error('Error loading submissions:', e);
+            }
+        }
+
+
+        function displayRecentSubmissions() {
+            const container = document.getElementById('submissionsTable');
+            
+            if (allSubmissions.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">No recent submissions</div>';
+                return;
+            }
+
+            const recent = allSubmissions.slice(0, 5);
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${recent.map(sub => `
+                            <tr>
+                                <td>${sub.student_name}</td>
+                                <td>${sub.service_name}</td>
+                                <td>${new Date(sub.date).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function displayAllSubmissions() {
+            const container = document.getElementById('allSubmissionsTable');
+            
+            if (allSubmissions.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #999;">No submissions yet</div>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Student ID</th>
+                            <th>Student Name</th>
+                            <th>Service</th>
+                            <th>Days</th>
+                            <th>Cost</th>
+                            <th>Submission Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${allSubmissions.map(sub => `
+                            <tr>
+                                <td>${sub.student_id}</td>
+                                <td>${sub.student_name}</td>
+                                <td>${sub.service_name}</td>
+                                <td>${sub.days}</td>
+                                <td>₹${sub.cost}</td>
+                                <td>${new Date(sub.date).toLocaleDateString()}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        document.getElementById('laundryForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const data = {
+                s_id: document.getElementById('student_id').value,
+                l_no: document.getElementById('laundry_no').value
+            };
+
+            try {
+                const response = await fetch(`${API_BASE}/laundry/submit`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    alert('Laundry submitted successfully');
+                    document.getElementById('laundryForm').reset();
+                    loadSubmissions();
+                } else {
+                    const error = await response.json();
+                    alert('Error: ' + error.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error submitting laundry');
+            }
+        });
+
+        // Load data on page load
+        loadLaundry();
+        loadStudents();
+        loadSubmissions();
+    </script>
+</body>
+</html>

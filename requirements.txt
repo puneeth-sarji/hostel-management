@@ -1,0 +1,242 @@
+# requirements.txt
+Flask==3.0.0
+Flask-CORS==4.0.0
+mysql-connector-python==8.2.0
+
+# SETUP INSTRUCTIONS
+"""
+COMPLETE HOSTEL MANAGEMENT SYSTEM SETUP GUIDE
+============================================
+
+STEP 1: INSTALL MYSQL
+----------------------
+1. Download and install MySQL from: https://dev.mysql.com/downloads/mysql/
+2. During installation, set a root password (remember this!)
+3. Start MySQL service
+
+STEP 2: PROJECT STRUCTURE
+--------------------------
+Create the following folder structure:
+
+hostel_management/
+├── app.py
+├── requirements.txt
+├── schema.sql
+└── templates/
+    ├── index.html
+    ├── students.html
+    ├── rooms.html
+    ├── mess.html
+    ├── wardens.html
+    └── laundry.html
+
+STEP 3: CREATE SCHEMA.SQL FILE
+-------------------------------
+Copy your SQL code from the document into schema.sql file
+
+STEP 4: INSTALL PYTHON DEPENDENCIES
+------------------------------------
+Open terminal/command prompt in the project folder and run:
+
+pip install -r requirements.txt
+
+STEP 5: CONFIGURE DATABASE
+---------------------------
+1. Open app.py
+2. Find the DB_CONFIG section (around line 10)
+3. Update with your MySQL credentials:
+
+DB_CONFIG = {
+    'host': 'localhost',
+    'user': 'root',              # Your MySQL username
+    'password': 'your_password',  # Your MySQL password
+    'database': 'hostel_management'
+}
+
+STEP 6: INITIALIZE DATABASE
+----------------------------
+Option A - Automatic (Recommended):
+1. In app.py, uncomment line at the bottom:
+   # init_database()  <- Remove the # symbol
+2. Run: python app.py
+3. The database will be created automatically
+4. After first run, comment it back: # init_database()
+
+Option B - Manual:
+1. Open MySQL command line or MySQL Workbench
+2. Run the contents of schema.sql file
+
+STEP 7: RUN THE APPLICATION
+----------------------------
+1. In terminal, run: python app.py
+2. Open browser and go to: http://localhost:5000
+3. You should see the dashboard!
+
+STEP 8: TEST THE SYSTEM
+------------------------
+1. Click on "Students" to manage students
+2. Try adding a new student
+3. Allocate rooms from the "Rooms" page
+4. Book mess services
+5. Submit laundry requests
+
+TROUBLESHOOTING
+---------------
+
+Problem: "Access denied for user"
+Solution: Check your MySQL username and password in DB_CONFIG
+
+Problem: "No module named flask"
+Solution: Run: pip install -r requirements.txt
+
+Problem: "Can't connect to MySQL server"
+Solution: Make sure MySQL service is running
+
+Problem: "Table doesn't exist"
+Solution: Run init_database() or manually execute schema.sql
+
+Problem: "Port 5000 already in use"
+Solution: Change port in app.py:
+app.run(debug=True, host='0.0.0.0', port=5001)
+
+FEATURES INCLUDED
+-----------------
+✅ Student Management (Add, Edit, Delete, Search)
+✅ Room Allocation with capacity tracking
+✅ Mess Booking System
+✅ Warden-Student monitoring
+✅ Laundry Service Management
+✅ Dashboard with statistics
+✅ Real-time updates
+✅ Beautiful modern UI
+✅ Mobile responsive design
+✅ Complete CRUD operations
+✅ Relational data handling
+
+API ENDPOINTS
+-------------
+GET    /api/students              - Get all students
+GET    /api/students/<id>         - Get specific student
+POST   /api/students              - Add new student
+PUT    /api/students/<id>         - Update student
+DELETE /api/students/<id>         - Delete student
+
+GET    /api/rooms                 - Get all rooms
+GET    /api/rooms/<no>/students   - Get room students
+POST   /api/rooms/allocate        - Allocate room
+
+GET    /api/mess                  - Get all mess
+POST   /api/mess/book             - Book mess
+
+GET    /api/wardens               - Get all wardens
+GET    /api/wardens/<id>/students - Get warden students
+
+GET    /api/laundry               - Get laundry services
+POST   /api/laundry/submit        - Submit laundry
+
+GET    /api/dashboard/stats       - Get dashboard stats
+
+DEFAULT LOGIN
+-------------
+No authentication required for this demo.
+For production, add authentication middleware.
+
+PRODUCTION DEPLOYMENT
+---------------------
+1. Set debug=False in app.py
+2. Use production WSGI server (gunicorn)
+3. Add authentication/authorization
+4. Use environment variables for secrets
+5. Enable HTTPS
+6. Set up proper error logging
+7. Add input validation
+8. Implement rate limiting
+
+BACKUP DATABASE
+---------------
+mysqldump -u root -p hostel_management > backup.sql
+
+RESTORE DATABASE
+----------------
+mysql -u root -p hostel_management < backup.sql
+
+SUPPORT
+-------
+For issues or questions, check:
+- MySQL documentation: https://dev.mysql.com/doc/
+- Flask documentation: https://flask.palletsprojects.com/
+- Stack Overflow: Search for specific errors
+
+NEXT STEPS
+----------
+1. Add user authentication (Flask-Login)
+2. Implement PDF report generation
+3. Add email notifications
+4. Create admin panel
+5. Add payment integration
+6. Implement attendance tracking
+7. Add complaint management
+8. Create mobile app (React Native)
+"""
+
+# database.py (Optional - Separate database utilities)
+import mysql.connector
+from mysql.connector import Error
+
+class Database:
+    def __init__(self, config):
+        self.config = config
+        self.connection = None
+    
+    def connect(self):
+        try:
+            self.connection = mysql.connector.connect(**self.config)
+            return self.connection
+        except Error as e:
+            print(f"Error: {e}")
+            return None
+    
+    def disconnect(self):
+        if self.connection and self.connection.is_connected():
+            self.connection.close()
+    
+    def execute_query(self, query, params=None):
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            self.connection.commit()
+            return cursor
+        except Error as e:
+            self.connection.rollback()
+            raise e
+        finally:
+            cursor.close()
+    
+    def fetch_all(self, query, params=None):
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            return cursor.fetchall()
+        except Error as e:
+            raise e
+        finally:
+            cursor.close()
+    
+    def fetch_one(self, query, params=None):
+        cursor = self.connection.cursor(dictionary=True)
+        try:
+            if params:
+                cursor.execute(query, params)
+            else:
+                cursor.execute(query)
+            return cursor.fetchone()
+        except Error as e:
+            raise e
+        finally:
+            cursor.close()
